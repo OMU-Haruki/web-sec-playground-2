@@ -1,0 +1,102 @@
+// このファイルを更新したら...
+// 0. `npm run dev` や `npx prisma studio` を停止
+// 1. dev.db を削除
+// 2. npx prisma db push
+// 3. npx prisma generate
+// 4. npx prisma db seed
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum Region {
+  TOKYO
+  OSAKA
+  OKINAWA
+}
+
+model User {
+  id           String      @id @default(uuid())
+  email        String      @unique
+  password     String
+  name         String
+  role         Role        @default(USER)
+  aboutSlug    String?     @map("about_slug") @unique
+  aboutContent String      @default("") 
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+  lastLoginAt  DateTime?   @map("last_login_at")
+
+  sessions     Session[]
+
+  @@map("users")
+}
+
+model Session {
+  id         String    @id @default(uuid())
+  userId     String    @map("user_id")
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now()) @map("created_at")
+  expiresAt  DateTime  @map("expires_at")
+
+  @@map("sessions")
+}
+
+model StolenContent {
+  id          String    @id @default(uuid())
+  content     String
+  createdAt   DateTime  @default(now()) @map("created_at")
+  @@map("stolen_contents")
+}
+
+model NewsItem {
+  id          String   @id @default(uuid())
+  title       String
+  content     String   @default("")
+  region      Region
+  publishedAt DateTime @default(now()) @map("published_at")
+
+  @@map("news")
+  @@index([region])
+}
+
+model Product {
+  id          String   @id
+  name        String
+  price       Int
+  CartItem    CartItem[]  
+  @@map("products")
+}
+
+model CartSession{
+  id         String    @id @default(uuid())
+  expiresAt  DateTime  @map("expires_at")
+  CartItem   CartItem[]
+
+  @@index([expiresAt]) // 有効期限切れの高速検索用
+  @@map("cart_sessions")
+}
+
+model CartItem {
+  id            String  @id @default(uuid())
+  cartSessionId String  @map("cart_session_id")
+  productId     String  @map("product_id")
+  quantity      Int
+
+  CartSession   CartSession @relation(fields: [cartSessionId], references: [id], onDelete: Cascade)
+  Product       Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([cartSessionId])
+  @@unique([cartSessionId, productId])
+  @@map("cart_items")
+}

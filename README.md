@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## ⚠️ 重要な注意事項
 
-## Getting Started
+このプロジェクトは **ウェブアプリのセキュリティ実験用のコンテンツ** です。学習と検証を目的として、あえて脆弱性を含む設計となっています。
 
-First, run the development server:
+- このウェブアプリを公開サーバーやインターネット上でホストしないでください。
+- 自分以外がアクセス可能な環境にデプロイしないでください。
+- ローカル環境（localhost）でのみ実行してください。
+
+このコードには意図的に組み込まれたセキュリティの脆弱性💀があります。セキュティ学習用の教材としてのみ利用してください。
+
+## セットアップ手順
+
+### 1. リポジトリのクローン
+
+```
+git clone https://github.com/TakeshiWada1980/web-sec-playground-2.git
+cd web-sec-playground-2
+```
+
+上記でクローンすると、カレントフォルダのなかに `web-sec-playground-2` というフォルダが新規作成されて展開されます。別名にしたいときは、たとえば `hoge` というフォルダにクローンしたいときは、次のようにしてください。
+
+```
+git clone https://github.com/TakeshiWada1980/web-sec-playground-2.git hoge
+cd hoge
+```
+
+### 2. 依存関係のインストール
+
+```bash
+npm i
+```
+
+### 3. 環境変数の設定ファイル (.env) の作成
+
+プロジェクトのルートフォルダに `.env` (環境変数の設定ファイル) を新規作成して以下の内容を記述してください。
+
+```
+DATABASE_URL="file:./app.db"
+JWT_SECRET=ABCDEFG123456789UVWXYZ
+```
+
+- `JWT_SECRET` は認証処理に必要な秘密キーです。安全性を確保するため、適当なランダムな英数字を用いた **16文字以上の文字列** に置き換えてください。文字数が不十分だと、動作時にエラーとなる可能性があります。
+
+
+### 4. データベースの初期化
+
+```bash
+npx prisma db push
+npx prisma generate
+npx prisma db seed
+```
+
+### 5. 開発サーバの起動
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 6. ビルドと実行
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+npm run start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- データベースの状態確認
 
-## Learn More
+```bash
+npx prisma studio
+```
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
