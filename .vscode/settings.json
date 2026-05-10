@@ -4,5 +4,6 @@
   "editor.formatOnType": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": ["source.fixAll.eslint"],
-  "css.lint.unknownAtRules": "ignore"
+  "css.lint.unknownAtRules": "ignore",
+  "workbench.browser.openLocalhostLinks": false
 }
