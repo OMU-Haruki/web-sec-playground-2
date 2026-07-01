@@ -12,7 +12,7 @@ import { ErrorMsgField } from "@/app/_components/ErrorMsgField";
 import { Button } from "@/app/_components/Button";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
-import { faSpinner, faPenNib } from "@fortawesome/free-solid-svg-icons";
+import { faSpinner, faPenNib, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { signupServerAction } from "@/app/_actions/signup";
@@ -21,11 +21,14 @@ const Page: React.FC = () => {
   const c_Name = "name";
   const c_Email = "email";
   const c_Password = "password";
+  const c_PasswordConfirm = "passwordConfirm";
 
   const router = useRouter();
 
   const [isPending, startTransition] = useTransition();
   const [isSignUpCompleted, setIsSignUpCompleted] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
   // フォーム処理関連の準備と設定
   const formMethods = useForm<SignupRequest>({
@@ -45,12 +48,28 @@ const Page: React.FC = () => {
   // ルートエラーのクリア用 onChange ハンドラ合成
   const { onChange: onEmailChange, ...emailRegister } = formMethods.register(c_Email);
   const { onChange: onPasswordChange, ...passwordRegister } = formMethods.register(c_Password);
+  const { onChange: onPasswordConfirmChange, ...passwordConfirmRegister } = formMethods.register(c_PasswordConfirm);
   const clearRootOnChange =
     (originalOnChange: React.ChangeEventHandler<HTMLInputElement>) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
       originalOnChange(e);
       formMethods.clearErrors("root");
     };
+
+  // パスワード強度の計算
+  const passwordValue = formMethods.watch(c_Password) || "";
+  const getPasswordStrength = (pw: string) => {
+    let score = 0;
+    if (pw.length > 5) score += 1;
+    if (pw.length > 8) score += 1;
+    if (/[A-Z]/.test(pw)) score += 1;
+    if (/[0-9]/.test(pw)) score += 1;
+    if (/[^A-Za-z0-9]/.test(pw)) score += 1;
+    return score;
+  };
+  const pwScore = getPasswordStrength(passwordValue);
+  const pwStrengthLabel = pwScore < 2 ? "弱い" : pwScore < 4 ? "普通" : "強い";
+  const pwStrengthColor = pwScore < 2 ? "bg-red-500" : pwScore < 4 ? "bg-yellow-500" : "bg-green-500";
 
   // サインアップ完了後のリダイレクト処理
   useEffect(() => {
@@ -88,6 +107,7 @@ const Page: React.FC = () => {
       </div>
       <form
         noValidate
+        suppressHydrationWarning
         onSubmit={formMethods.handleSubmit(onSubmit)}
         className="mt-4 flex flex-col gap-y-4"
       >
@@ -128,17 +148,65 @@ const Page: React.FC = () => {
           <label htmlFor={c_Password} className="mb-2 block font-bold">
             パスワード
           </label>
-          <TextInputField
-            {...passwordRegister}
-            onChange={clearRootOnChange(onPasswordChange)}
-            id={c_Password}
-            placeholder="*****"
-            type="password"
-            disabled={isPending || isSignUpCompleted}
-            error={!!fieldErrors.password}
-            autoComplete="off"
-          />
+          <div className="relative">
+            <TextInputField
+              {...passwordRegister}
+              onChange={clearRootOnChange(onPasswordChange)}
+              id={c_Password}
+              placeholder="*****"
+              type={showPassword ? "text" : "password"}
+              disabled={isPending || isSignUpCompleted}
+              error={!!fieldErrors.password}
+              autoComplete="off"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700"
+              tabIndex={-1}
+            >
+              <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+            </button>
+          </div>
+          {passwordValue.length > 0 && (
+            <div className="mt-2 flex items-center gap-x-2 text-sm">
+              <span className="w-16">強度: {pwStrengthLabel}</span>
+              <div className="h-2 flex-1 rounded bg-gray-200 overflow-hidden">
+                <div
+                  className={`h-full ${pwStrengthColor} transition-all duration-300`}
+                  style={{ width: `${Math.min(pwScore * 20 + 20, 100)}%` }}
+                />
+              </div>
+            </div>
+          )}
           <ErrorMsgField msg={fieldErrors.password?.message} />
+        </div>
+
+        <div>
+          <label htmlFor={c_PasswordConfirm} className="mb-2 block font-bold">
+            パスワード（確認）
+          </label>
+          <div className="relative">
+            <TextInputField
+              {...passwordConfirmRegister}
+              onChange={clearRootOnChange(onPasswordConfirmChange)}
+              id={c_PasswordConfirm}
+              placeholder="*****"
+              type={showPasswordConfirm ? "text" : "password"}
+              disabled={isPending || isSignUpCompleted}
+              error={!!fieldErrors.passwordConfirm}
+              autoComplete="off"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700"
+              tabIndex={-1}
+            >
+              <FontAwesomeIcon icon={showPasswordConfirm ? faEyeSlash : faEye} />
+            </button>
+          </div>
+          <ErrorMsgField msg={fieldErrors.passwordConfirm?.message} />
           <ErrorMsgField msg={fieldErrors.root?.message} />
         </div>
 

@@ -3,9 +3,7 @@ import { aboutSchema } from "@/app/_types/About";
 import type { About } from "@/app/_types/About";
 import type { ApiResponse } from "@/app/_types/ApiResponse";
 import { NextResponse, NextRequest } from "next/server";
-import { verifySession } from "@/app/api/_helper/verifySession";
 import { verifyJwt } from "@/app/api/_helper/verifyJwt";
-import { AUTH } from "@/config/auth";
 
 // キャッシュを無効化して常に最新情報を取得
 export const dynamic = "force-dynamic";
@@ -13,11 +11,7 @@ export const fetchCache = "force-no-store";
 export const revalidate = 0;
 
 const getUserId = async (req: NextRequest): Promise<string | null> => {
-  if (AUTH.isSession) {
-    return await verifySession();
-  } else {
-    return await verifyJwt(req);
-  }
+  return await verifyJwt(req);
 };
 
 export const GET = async (req: NextRequest) => {

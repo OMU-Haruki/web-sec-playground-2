@@ -6,16 +6,7 @@ import { prisma } from "@/libs/prisma";
 export const dynamic = "force-dynamic";
 
 const links = [
-  {
-    href: "/news",
-    label: "ニュース",
-    info: "Cookie超入門、SWR超入門、DB Seeding入門、XSS脆弱性（反射型）",
-  },
-  {
-    href: "/shop",
-    label: "ショップ",
-    info: "Cookie入門、SWR入門、zod入門",
-  },
+
   {
     href: "/login",
     label: "ログイン",
@@ -72,7 +63,6 @@ const Page = async () => {
               >
                 {name} のプロフィール
               </NextLink>
-              <div className="text-xs text-rose-400">※ XSS脆弱性（蓄積型）</div>
             </div>
           ))
         )}

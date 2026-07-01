@@ -1,12 +1,2 @@
-import type { ApiResponse } from "../_types/ApiResponse";
-
-export const sessionFetcher = async (endPoint: string) => {
-  const res = await fetch(endPoint, {
-    credentials: "same-origin",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  return res.json();
-};
+// このファイルは不要になったため中身を削除しました。
+// ファイル自体を手動で削除してください。

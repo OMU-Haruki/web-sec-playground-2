@@ -1,5 +1,3 @@
-import { prisma } from "@/libs/prisma";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import type { ApiResponse } from "@/app/_types/ApiResponse";
 
@@ -10,23 +8,6 @@ export const revalidate = 0;
 
 export const DELETE = async () => {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get("session_id")?.value;
-
-    if (sessionId) {
-      await prisma.session.deleteMany({
-        where: { id: sessionId },
-      });
-
-      // クッキー削除（上書きで maxAge 0 を指定）
-      cookieStore.set("session_id", "", {
-        path: "/",
-        httpOnly: true,
-        sameSite: "strict",
-        maxAge: 0, // 削除のため
-        secure: false, // 本番では true に
-      });
-    }
 
     const res: ApiResponse<null> = {
       success: true,
